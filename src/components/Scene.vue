@@ -42,12 +42,12 @@ export default {
     window.addEventListener('resize', this.onResize)
     this.websocket = new WebSocket(this.wsApiPath)
     this.websocket.onmessage = this.wsOnMessage
-    this.websocket.onError = this.wsOnError
-    this.websocket.onOpen = this.wsOnOpen
+    this.websocket.onerror = this.wsOnError
+    this.websocket.onopen = this.wsOnOpen
   },
   methods: {
-    wsOnOpen(message) {
-      console.log(message)
+    wsOnOpen() {
+      this.websocket.send(true)
     },
     wsOnError(message) {
       console.log(message)
@@ -129,7 +129,7 @@ export default {
             let cube = new THREE.Mesh(geometry, material)
             let position = car.position
             cube.position.set(position.x, 0.1, position.y)
-            cube.id = car.id
+            console.log(cube.id)
             this.scene.add(cube)
             this.scene.remove()
             console.log('added')
