@@ -28,7 +28,6 @@ export default {
       scene: null,
       renderer: null,
       clock: null,
-      cube: null,
       panel: null,
       fpsCameraControl: null,
       ambientLight: null,
@@ -81,10 +80,6 @@ export default {
           this.container
       )
 
-      const material = new THREE.MeshBasicMaterial({ color: 0x0000ff })
-      const geometry = new THREE.BoxGeometry(1,1,1)
-      this.cube = new THREE.Mesh(geometry, material)
-
       const panel_material = new THREE.MeshBasicMaterial({color: 0x00ff00})
       const panel_geometry = new THREE.PlaneGeometry(1000, 1000)
       this.panel = new THREE.Mesh(panel_geometry, panel_material)
@@ -100,7 +95,6 @@ export default {
       }
 
       this.scene.add(this.panel)
-      this.scene.add(this.cube)
     },
     simulate: function () {
       this.fpsCameraControl.simulate(this.clock.getDelta())
