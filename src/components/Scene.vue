@@ -23,6 +23,8 @@ export default {
       mutex: false,
       is_logged: false,
       ws_cars: [],
+      ws_data: {},
+      ws_roads: {},
       scene_cars: {},
       container: null,
       scene: null,
@@ -53,7 +55,9 @@ export default {
       console.log(message)
     },
     wsOnMessage(message) {
-      this.ws_cars = JSON.parse(message.data)
+      this.ws_data = JSON.parse(message.data)
+      this.ws_cars = this.ws_data.cars || []
+      this.ws_roads = this.ws_data.roads || []
       this.wsReceivedMessages += 1
       this.websocket.send(true)
     },
@@ -86,13 +90,13 @@ export default {
       this.panel.position.set(0,0,0)
       this.panel.lookAt(0,1,0)
 
-      this.streets.push(
-          new Street(new THREE.Vector3(10, 0.1,0), new THREE.Vector3(-10, 0.1, 0)),
-          new Street(new THREE.Vector3(-10, 0.1, 0), new THREE.Vector3(-10, 0.1, 30))
-      )
-      for (let i=0; i<this.streets.length; i++){
-        this.scene.add(this.streets[i])
-      }
+      // this.streets.push(
+      //     new Street(new THREE.Vector3(10, 0.1,0), new THREE.Vector3(-10, 0.1, 0)),
+      //     new Street(new THREE.Vector3(-10, 0.1, 0), new THREE.Vector3(-10, 0.1, 30))
+      // )
+      // for (let i=0; i<this.streets.length; i++){
+      //   this.scene.add(this.streets[i])
+      // }
 
       this.scene.add(this.panel)
     },
@@ -113,6 +117,21 @@ export default {
             this.scene.add(cube)
           } else {
             scene_car.position.set(position.x, 0.1, position.y)
+          }
+        }
+      }
+      if (this.ws_roads !== null) {
+        for (let i = 0; i < this.ws_roads.length; i++) {
+          let road = this.ws_roads[i]
+          const scene_road = this.scene.getObjectByName(`road${road.id}`)
+          let position = road.position
+          if (!scene_road) {
+            let street = new Street(
+                new THREE.Vector3(position.p1.x, 0.1, position.p1.y),
+                new THREE.Vector3(position.p2.x, 0.1, position.p2.y)
+            )
+            street.name = `road${road.id}`
+            this.scene.add(street)
           }
         }
       }
