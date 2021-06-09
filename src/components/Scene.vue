@@ -23,6 +23,7 @@ export default {
       mutex: false,
       is_logged: false,
       ws_cars: [],
+      registeredCars: [],
       ws_data: {},
       ws_roads: {},
       scene_cars: {},
@@ -90,14 +91,6 @@ export default {
       this.panel.position.set(0,0,0)
       this.panel.lookAt(0,1,0)
 
-      // this.streets.push(
-      //     new Street(new THREE.Vector3(10, 0.1,0), new THREE.Vector3(-10, 0.1, 0)),
-      //     new Street(new THREE.Vector3(-10, 0.1, 0), new THREE.Vector3(-10, 0.1, 30))
-      // )
-      // for (let i=0; i<this.streets.length; i++){
-      //   this.scene.add(this.streets[i])
-      // }
-
       this.scene.add(this.panel)
     },
     simulate: function () {
@@ -105,9 +98,11 @@ export default {
       // обработка положений автомобилей
       const material = new THREE.MeshBasicMaterial({ color: 0x0000ff })
       const geometry = new THREE.BoxGeometry(1,1,1)
+      let existCarsId = []
       if (this.ws_cars !== null) {
         for (let i = 0; i < this.ws_cars.length; i++) {
           let car = this.ws_cars[i]
+          existCarsId.push(car.id)
           const scene_car = this.scene.getObjectByName(car.id)
           let position = car.position
           if (!scene_car) {
@@ -115,10 +110,18 @@ export default {
             cube.name = car.id
             cube.position.set(position.x, 0.1, position.y)
             this.scene.add(cube)
+            this.registeredCars.push(car.id)
           } else {
             scene_car.position.set(position.x, 0.1, position.y)
           }
         }
+        // Удаление автомобилей
+        const diff = this.registeredCars.filter(car_id => !existCarsId.includes(car_id))
+
+        for (let i = 0; i < diff.length; i++) {
+          this.scene.remove(this.scene.getObjectByName(diff[i]))
+        }
+        this.registeredCars = existCarsId
       }
       if (this.ws_roads !== null) {
         for (let i = 0; i < this.ws_roads.length; i++) {
@@ -128,7 +131,8 @@ export default {
           if (!scene_road) {
             let street = new Street(
                 new THREE.Vector3(position.p1.x, 0.1, position.p1.y),
-                new THREE.Vector3(position.p2.x, 0.1, position.p2.y)
+                new THREE.Vector3(position.p2.x, 0.1, position.p2.y),
+                position.angle
             )
             street.name = `road${road.id}`
             this.scene.add(street)

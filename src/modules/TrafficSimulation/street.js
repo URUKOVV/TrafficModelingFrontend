@@ -4,10 +4,15 @@ const material = new MeshBasicMaterial({color: 0x333333})
 
 export class Street extends Mesh{
     // eslint-disable-next-line constructor-super
-    constructor(positionStart, positionEnd) {
+    constructor(
+        positionStart,
+        positionEnd,
+        angle
+    ) {
+        console.log(angle)
         if (!(positionStart instanceof Vector3 && positionEnd instanceof Vector3)) return
 
-        super(new PlaneGeometry(10, positionStart.distanceTo(positionEnd)), material)
+        super(new PlaneGeometry(5, positionStart.distanceTo(positionEnd)), material)
         this.position.set(
             positionStart.x - (positionStart.x - positionEnd.x)/2,
             positionStart.y - (positionStart.y - positionEnd.y)/2,
@@ -16,6 +21,8 @@ export class Street extends Mesh{
 
         let matrix1 = new Matrix4()
         let matrix2 = new Matrix4()
+        let matrix3 = new Matrix4()
+
         let up = -Math.PI/2
 
         let tempPoint = new Vector3(this.position.x, this.position.y, this.position.z + 1)
@@ -44,8 +51,18 @@ export class Street extends Mesh{
             0, 0, 1, 0,
             0, 0, 0, 1
         )
-
-        this.setRotationFromMatrix(matrix1.multiply(matrix2))
+        if (angle) {
+            console.log('turned')
+            matrix3.set(
+                Math.cos(angle), Math.sin(angle), 0, 0,
+                -Math.sin(angle), Math.cos(angle), 0, 0,
+                0, 0, 1, 0,
+                0, 0, 0, 1
+            )
+            this.setRotationFromMatrix(matrix1.multiply(matrix2).multiply(matrix3))
+        } else {
+            this.setRotationFromMatrix(matrix1.multiply(matrix2))
+        }
 
         // let tempPoint = new Vector3(this.position.x + 2, this.position.y, this.position.z)
         //
