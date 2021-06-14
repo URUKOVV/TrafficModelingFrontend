@@ -19,9 +19,7 @@ export default {
   data() {
     return {
       wsReceivedMessages: 0,
-      added: false,
-      mutex: false,
-      is_logged: false,
+      roadIsInit: false,
       ws_cars: [],
       registeredCars: [],
       ws_data: {},
@@ -101,10 +99,10 @@ export default {
       let existCarsId = []
       if (this.ws_cars !== null) {
         for (let i = 0; i < this.ws_cars.length; i++) {
-          let car = this.ws_cars[i]
+          const car = this.ws_cars[i]
           existCarsId.push(car.id)
           const scene_car = this.scene.getObjectByName(car.id)
-          let position = car.position
+          const position = car.position
           if (!scene_car) {
             let cube = new THREE.Mesh(geometry, material)
             cube.name = car.id
@@ -123,20 +121,23 @@ export default {
         }
         this.registeredCars = existCarsId
       }
-      if (this.ws_roads !== null) {
-        for (let i = 0; i < this.ws_roads.length; i++) {
-          let road = this.ws_roads[i]
-          const scene_road = this.scene.getObjectByName(`road${road.id}`)
-          let position = road.position
-          if (!scene_road) {
-            let street = new Street(
-                new THREE.Vector3(position.p1.x, 0.1, position.p1.y),
-                new THREE.Vector3(position.p2.x, 0.1, position.p2.y),
-                position.angle
-            )
-            street.name = `road${road.id}`
-            this.scene.add(street)
+      if (!this.roadIsInit) {
+        if (this.ws_roads !== null && this.ws_roads.length) {
+          for (let i = 0; i < this.ws_roads.length; i++) {
+            let road = this.ws_roads[i]
+            const scene_road = this.scene.getObjectByName(`road${road.id}`)
+            let position = road.position
+            if (!scene_road) {
+              let street = new Street(
+                  new THREE.Vector3(position.p1.x, 0.1, position.p1.y),
+                  new THREE.Vector3(position.p2.x, 0.1, position.p2.y),
+                  position.angle
+              )
+              street.name = `road${road.id}`
+              this.scene.add(street)
+            }
           }
+          this.roadIsInit = true
         }
       }
       this.draw()

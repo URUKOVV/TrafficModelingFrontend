@@ -52,7 +52,6 @@ export class Street extends Mesh{
             0, 0, 0, 1
         )
         if (angle) {
-            console.log('turned')
             matrix3.set(
                 Math.cos(angle), Math.sin(angle), 0, 0,
                 -Math.sin(angle), Math.cos(angle), 0, 0,
