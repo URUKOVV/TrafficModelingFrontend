@@ -63,7 +63,7 @@ export class FpsCameraControl {
         this.domElem.addEventListener('mousemove', this._mouseMove)
         this.domElem.addEventListener('mousedown', this._mouseDown)
         this.domElem.addEventListener('mouseup', this._mouseUp)
-        this.domElem.addEventListener('mousewheel', this._mouseWheel)
+        // this.domElem.addEventListener('mousewheel', this._mouseWheel)
 
         window.addEventListener('keydown', this._keyDown)
         window.addEventListener('keyup', this._keyUp)
