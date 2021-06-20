@@ -6,6 +6,8 @@
 import * as THREE from 'three'
 import {FpsCameraControl} from "../modules/FpsCameraControl/fpsCameraControl"
 import {Street} from "../modules/TrafficSimulation/street"
+import {CrossRoad} from "../modules/TrafficSimulation/cross_road"
+import {Semphore} from "../modules/TrafficSimulation/semphore"
 
 export default {
   name: "Scene",
@@ -20,10 +22,13 @@ export default {
     return {
       wsReceivedMessages: 0,
       roadIsInit: false,
+      crossRoadIsInit: false,
       ws_cars: [],
       registeredCars: [],
       ws_data: {},
-      ws_roads: {},
+      ws_roads: [],
+      ws_semaphores: [],
+      ws_cross_roads: [],
       scene_cars: {},
       container: null,
       scene: null,
@@ -57,6 +62,8 @@ export default {
       this.ws_data = JSON.parse(message.data)
       this.ws_cars = this.ws_data.cars || []
       this.ws_roads = this.ws_data.roads || []
+      this.ws_semaphores = this.ws_data.semaphores || []
+      this.ws_cross_roads = this.ws_data.crossRoads || []
       this.wsReceivedMessages += 1
       this.websocket.send(true)
     },
@@ -83,7 +90,7 @@ export default {
           this.container
       )
 
-      const panel_material = new THREE.MeshBasicMaterial({color: 0x00ff00})
+      const panel_material = new THREE.MeshBasicMaterial({color: 0x5C8829})
       const panel_geometry = new THREE.PlaneGeometry(1000, 1000)
       this.panel = new THREE.Mesh(panel_geometry, panel_material)
       this.panel.position.set(0,0,0)
@@ -138,6 +145,33 @@ export default {
             }
           }
           this.roadIsInit = true
+        }
+      }
+      if (!this.crossRoadIsInit) {
+        if (this.ws_cross_roads !== null && this.ws_cross_roads.length) {
+          for (let i = 0; i < this.ws_cross_roads.length; i++) {
+            let crossRoad = this.ws_cross_roads[i]
+            let scene_cross_road = this.scene.getObjectByName(`crossRoad${crossRoad.id}`)
+            if (!scene_cross_road) {
+              scene_cross_road = new CrossRoad(crossRoad.position)
+              scene_cross_road.name = `crossRoad${crossRoad.id}`
+              this.scene.add(scene_cross_road)
+            }
+          }
+          this.crossRoadIsInit = true
+        }
+      }
+      if (this.ws_semaphores !== null && this.ws_semaphores.length) {
+        for (let i = 0; i < this.ws_semaphores.length; i++) {
+          let ws_semaphore = this.ws_semaphores[i]
+          let scene_semaphore = this.scene.getObjectByName(`semaphore${ws_semaphore.id}`)
+          if (!scene_semaphore) {
+            scene_semaphore = new Semphore(ws_semaphore.position, ws_semaphore.state)
+            scene_semaphore.name = `semaphore${ws_semaphore.id}`
+            this.scene.add(scene_semaphore)
+          } else {
+            scene_semaphore.setState(ws_semaphore.state)
+          }
         }
       }
       this.draw()
